@@ -3,6 +3,7 @@ package com.cj.deepmind.userManagement.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -21,15 +23,20 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -49,12 +56,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -65,16 +76,51 @@ import com.cj.deepmind.ui.theme.gray
 import com.cj.deepmind.ui.theme.red
 import com.cj.deepmind.ui.theme.white
 import com.cj.deepmind.userManagement.helper.UserManagement
+import com.cj.deepmind.userManagement.models.SignUpAlertModel
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import kotlin.time.Duration.Companion.seconds
+
+fun getAlertTitle(alertModel : SignUpAlertModel) : String{
+    when(alertModel){
+        SignUpAlertModel.EMPTY_FIELD -> return "공백 필드"
+        SignUpAlertModel.INCORRECT_EMAIL_TYPE -> return "잘못된 E-Mail 형식"
+        SignUpAlertModel.MISMATCH_PASSWORD -> return "비밀번호 불일치"
+        SignUpAlertModel.REQUIRE_ACCEPT_LICENSE -> return "이용약관 동의 필요"
+        SignUpAlertModel.WEAK_PASSWORD -> return "위험한 비밀번호"
+        SignUpAlertModel.ERROR -> return "오류"
+    }
+}
+
+fun getAlertContents(alertModel: SignUpAlertModel) : String{
+    when(alertModel){
+        SignUpAlertModel.EMPTY_FIELD -> return "모든 필드를 입력해주세요."
+        SignUpAlertModel.INCORRECT_EMAIL_TYPE -> return "잘못된 E-Mail 형식입니다."
+        SignUpAlertModel.MISMATCH_PASSWORD -> return "비밀번호와 비밀번호 확인이 일치하지 않습니다."
+        SignUpAlertModel.REQUIRE_ACCEPT_LICENSE -> return "필수 이용약관을 모두 읽고 동의해주세요."
+        SignUpAlertModel.WEAK_PASSWORD -> return "보안을 위해 6자리 이상의 비밀번호를 설정해주세요."
+        SignUpAlertModel.ERROR -> return "회원가입을 처리하는 중 문제가 발생하였습니다.\n이미 가입된 E-Mail이거나 네트워크 상태가 불안정하였을 수 있습니다."
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpView() {
     val title = remember {
         mutableStateOf("반가워요!")
+    }
+
+    val email = remember{
+        mutableStateOf("")
+    }
+
+    val password = remember{
+        mutableStateOf("")
+    }
+
+    val checkPassword = remember {
+        mutableStateOf("")
     }
 
     val name = remember {
@@ -120,6 +166,14 @@ fun SignUpView() {
         mutableStateOf(false)
     }
 
+    val alertModel = remember{
+        mutableStateOf<SignUpAlertModel?>(null)
+    }
+
+    val showAlert = remember{
+        mutableStateOf(false)
+    }
+
     val navController = rememberNavController()
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = System.currentTimeMillis())
 
@@ -159,8 +213,10 @@ fun SignUpView() {
                         )
                     }, content = {
                         Column(
-                            modifier = Modifier.fillMaxSize()
-                                .background(DeepMindColorPalette.current.background).padding(it)
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(DeepMindColorPalette.current.background)
+                                .padding(it)
                         ) {
                             Column(
                                 modifier = Modifier
@@ -181,14 +237,133 @@ fun SignUpView() {
 
                                 LaunchedEffect(Unit) {
                                     delay(1.seconds)
-                                    title.value = "이름을 입력해주세요."
+                                    title.value = "E-Mail을 입력해주세요."
                                     showView.value = true
                                 }
 
                                 Spacer(modifier = Modifier.height(40.dp))
 
-                                AnimatedVisibility(visible = showView.value) {
+                                AnimatedVisibility(visible = showView.value){
+                                    OutlinedTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = email.value,
+                                        onValueChange = { textVal : String ->
+                                            email.value = textVal
+                                        },
+                                        label = { Text("E-Mail") },
+                                        placeholder = { Text("E-Mail") } ,
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Default.AlternateEmail,
+                                                contentDescription = null
+                                            )
+                                        },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            cursorColor = accent,
+                                            focusedBorderColor = accent,
+                                            errorCursorColor = red,
+                                            errorLeadingIconColor = red,
+                                            disabledPlaceholderColor = gray,
+                                            focusedTextColor = accent,
+                                            focusedLabelColor = accent,
+                                            focusedLeadingIconColor = accent,
+                                            disabledTextColor = gray,
+                                            unfocusedLabelColor = DeepMindColorPalette.current.txtColor,
+                                            unfocusedLeadingIconColor = DeepMindColorPalette.current.txtColor,
+                                            unfocusedSupportingTextColor = DeepMindColorPalette.current.txtColor,
+                                            selectionColors = TextSelectionColors(handleColor = accent, backgroundColor = accent.copy(alpha = 0.5f))
+                                        ),
+                                        maxLines = 1,
+                                        singleLine = true
+                                    )
 
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                }
+
+                                AnimatedVisibility(visible = email.value != "") {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally){
+                                        OutlinedTextField(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            value = password.value,
+                                            onValueChange = { textVal : String ->
+                                                password.value = textVal
+                                            },
+                                            label = { Text("비밀번호") },
+                                            placeholder = { Text("비밀번호") } ,
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Key,
+                                                    contentDescription = null
+                                                )
+                                            },
+                                            colors = OutlinedTextFieldDefaults.colors(
+                                                cursorColor = accent,
+                                                focusedBorderColor = accent,
+                                                errorCursorColor = red,
+                                                errorLeadingIconColor = red,
+                                                disabledPlaceholderColor = gray,
+                                                focusedTextColor = accent,
+                                                focusedLabelColor = accent,
+                                                focusedLeadingIconColor = accent,
+                                                disabledTextColor = gray,
+                                                unfocusedLabelColor = DeepMindColorPalette.current.txtColor,
+                                                unfocusedLeadingIconColor = DeepMindColorPalette.current.txtColor,
+                                                unfocusedSupportingTextColor = DeepMindColorPalette.current.txtColor,
+                                                selectionColors = TextSelectionColors(handleColor = accent, backgroundColor = accent.copy(alpha = 0.5f))
+                                            ),
+                                            maxLines = 1,
+                                            singleLine = true,
+                                            visualTransformation = PasswordVisualTransformation()
+                                        )
+
+                                        Spacer(modifier = Modifier.height(5.dp))
+
+                                        Text("보안을 위해 6자리 이상의 비밀번호를 설정해주세요.", fontSize = 12.sp, color = gray)
+
+                                        Spacer(modifier = Modifier.height(20.dp))
+
+                                        OutlinedTextField(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            value = checkPassword.value,
+                                            onValueChange = { textVal : String ->
+                                                checkPassword.value = textVal
+                                            },
+                                            label = { Text("한번 더") },
+                                            placeholder = { Text("한번 더") } ,
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Key,
+                                                    contentDescription = null
+                                                )
+                                            },
+                                            colors = OutlinedTextFieldDefaults.colors(
+                                                cursorColor = accent,
+                                                focusedBorderColor = accent,
+                                                errorCursorColor = red,
+                                                errorLeadingIconColor = red,
+                                                disabledPlaceholderColor = gray,
+                                                focusedTextColor = accent,
+                                                focusedLabelColor = accent,
+                                                focusedLeadingIconColor = accent,
+                                                disabledTextColor = gray,
+                                                unfocusedLabelColor = DeepMindColorPalette.current.txtColor,
+                                                unfocusedLeadingIconColor = DeepMindColorPalette.current.txtColor,
+                                                unfocusedSupportingTextColor = DeepMindColorPalette.current.txtColor,
+                                                selectionColors = TextSelectionColors(handleColor = accent, backgroundColor = accent.copy(alpha = 0.5f))
+                                            ),
+                                            maxLines = 1,
+                                            singleLine = true,
+                                            visualTransformation = PasswordVisualTransformation()
+                                        )
+                                    }
+
+                                }
+
+                                Spacer(modifier = Modifier.height(20.dp))
+
+
+                                AnimatedVisibility(visible = checkPassword.value != "") {
+                                    title.value = "이름을 입력해주세요."
                                     OutlinedTextField(
                                         modifier = Modifier.fillMaxWidth(),
                                         value = name.value,
@@ -454,20 +629,48 @@ fun SignUpView() {
 
                                 Spacer(modifier = Modifier.height(20.dp))
 
-                                AnimatedVisibility(visible = isLicenseAccepted.value && isPrivacyLicenseAccepted.value) {
+                                AnimatedVisibility(visible = isLicenseAccepted.value && isPrivacyLicenseAccepted.value && isSensitiveLicenseAccepted.value) {
                                     title.value = "다음 단계로 이동해주세요!"
 
                                     Button(
                                         onClick = {
-                                            navController.navigate("UploadFeatureView") {
-                                                popUpTo("SignUpView") {
-                                                    inclusive = true
+                                            if(!email.value.contains("@")){
+                                                alertModel.value = SignUpAlertModel.INCORRECT_EMAIL_TYPE
+                                                showAlert.value = true
+                                            } else if(password.value.length < 6){
+                                                alertModel.value = SignUpAlertModel.WEAK_PASSWORD
+                                                showAlert.value = true
+                                            } else if(password.value != checkPassword.value){
+                                                alertModel.value = SignUpAlertModel.MISMATCH_PASSWORD
+                                                showAlert.value = true
+                                            } else if(email.value == "" || password.value == "" || name.value == "" || nickName.value == "" || checkPassword.value == "" || birthDay.value == birthDayDefaultValue || phoneNumber.value == ""){
+                                                alertModel.value = SignUpAlertModel.EMPTY_FIELD
+                                                showAlert.value = true
+                                            } else if(!isLicenseAccepted.value || !isPrivacyLicenseAccepted.value || !isSensitiveLicenseAccepted.value){
+                                                alertModel.value = SignUpAlertModel.REQUIRE_ACCEPT_LICENSE
+                                                showAlert.value = true
+                                            } else{
+                                                showProgress.value = true
+
+                                                helper.signUp(email.value, password.value, name.value, nickName.value, phoneNumber.value, birthDay.value){
+                                                    if(it){
+                                                        navController.navigate("UploadFeatureView") {
+                                                            popUpTo("SignUpView") {
+                                                                inclusive = true
+                                                            }
+                                                        }
+                                                    } else{
+                                                        alertModel.value = SignUpAlertModel.ERROR
+                                                        showAlert.value = true
+                                                    }
                                                 }
+
+                                                showProgress.value = false
                                             }
                                         },
                                         modifier = Modifier
                                             .fillMaxWidth(),
-                                        enabled = !name.value.isEmpty() && !nickName.value.isEmpty() && !birthDay.value.equals(birthDayDefaultValue) && !phoneNumber.value.isEmpty() && isLicenseAccepted.value && isPrivacyLicenseAccepted.value,
+                                        enabled = !email.value.isEmpty() && !password.value.isEmpty() && !checkPassword.value.isEmpty() && !name.value.isEmpty() && !nickName.value.isEmpty() && !birthDay.value.equals(birthDayDefaultValue) && !phoneNumber.value.isEmpty() && isLicenseAccepted.value && isPrivacyLicenseAccepted.value && !showProgress.value,
                                         contentPadding = PaddingValues(20.dp),
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = accent, disabledContainerColor = gray
@@ -532,7 +735,47 @@ fun SignUpView() {
                                 }
 
                                 if(showProgress.value){
+                                    Dialog(
+                                        onDismissRequest = { showProgress.value = false },
+                                        DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+                                    ) {
+                                        Box(
+                                            contentAlignment= Center,
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .background(
+                                                    DeepMindColorPalette.current.background.copy(
+                                                        alpha = 0.7f
+                                                    ),
+                                                    shape = RoundedCornerShape(8.dp)
+                                                )
+                                        ) {
+                                            CircularProgressIndicator(color = accent)
+                                        }
+                                    }
+                                }
 
+                                if(showAlert.value){
+                                    AlertDialog(
+                                        onDismissRequest = { showAlert.value = false },
+
+                                        confirmButton = {
+                                            TextButton(onClick = {
+                                                showAlert.value = false
+                                            }){
+                                                Text("확인", color = accent, fontWeight = FontWeight.Bold)
+                                            }
+                                        },
+                                        title = {
+                                            Text(getAlertTitle(alertModel.value!!))
+                                        },
+                                        text = {
+                                            Text(getAlertContents(alertModel.value!!))
+                                        },
+                                        icon = {
+                                            Icon(imageVector = Icons.Default.Cancel, contentDescription = null)
+                                        }
+                                    )
                                 }
                             }
                         }

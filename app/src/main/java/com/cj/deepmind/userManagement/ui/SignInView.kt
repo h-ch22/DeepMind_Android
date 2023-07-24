@@ -1,7 +1,9 @@
 package com.cj.deepmind.userManagement.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,15 +20,19 @@ import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.ArrowCircleRight
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Key
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,6 +50,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -55,6 +64,7 @@ import com.cj.deepmind.ui.theme.accent
 import com.cj.deepmind.ui.theme.gray
 import com.cj.deepmind.ui.theme.red
 import com.cj.deepmind.ui.theme.white
+import com.cj.deepmind.userManagement.helper.UserManagement
 import com.cj.deepmind.userManagement.models.AuthInfoModel
 
 @Composable
@@ -71,9 +81,13 @@ fun SignInView(){
     val showProgress = remember{
         mutableStateOf(false)
     }
+    
+    val showAlert = remember{
+        mutableStateOf(false)
+    }
 
     val context = LocalContext.current
-
+    val helper = UserManagement()
     val dataStoreUtil = DataStoreUtil(context)
     val authInfo = dataStoreUtil.getFromDataStore().collectAsState(initial = AuthInfoModel(email = "", password = ""))
 
@@ -213,6 +227,16 @@ fun SignInView(){
                             Button(
                                 onClick = {
                                     showProgress.value = true
+
+                                    helper.signIn(email.value, password.value){
+                                        if(it){
+
+                                        } else{
+                                            
+                                        }
+
+                                        showProgress.value = false
+                                    }
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth(),
@@ -288,6 +312,48 @@ fun SignInView(){
                                 fontSize = 10.sp,
                                 textAlign = TextAlign.Center
                             )
+
+                            if(showProgress.value){
+                                Dialog(
+                                    onDismissRequest = { showProgress.value = false },
+                                    DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+                                ) {
+                                    Box(
+                                        contentAlignment= Alignment.Center,
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .background(
+                                                DeepMindColorPalette.current.background.copy(alpha = 0.7f),
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
+                                    ) {
+                                        CircularProgressIndicator(color = accent)
+                                    }
+                                }
+                            }
+
+                            if(showAlert.value){
+                                AlertDialog(
+                                    onDismissRequest = { showAlert.value = false },
+
+                                    confirmButton = {
+                                        TextButton(onClick = {
+                                            showAlert.value = false
+                                        }){
+                                            Text("확인", color = accent, fontWeight = FontWeight.Bold)
+                                        }
+                                    },
+                                    title = {
+                                        Text("오류")
+                                    },
+                                    text = {
+                                        Text("로그인을 진행하는 중 문제가 발생하였습니다.\n일치하는 회원정보가 없거나 불안정한 네트워크 상태가 원인일 수 있습니다.")
+                                    },
+                                    icon = {
+                                        Icon(imageVector = Icons.Default.Cancel, contentDescription = null)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
