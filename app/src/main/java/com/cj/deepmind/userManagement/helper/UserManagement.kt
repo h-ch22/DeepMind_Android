@@ -3,6 +3,7 @@ package com.cj.deepmind.userManagement.helper
 import com.cj.deepmind.frameworks.helper.AES256Util
 import com.cj.deepmind.userManagement.models.UserInfoModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 
 class UserManagement {
@@ -17,8 +18,13 @@ class UserManagement {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
             if(it.isSuccessful){
                 getUserInfo {
-                    completion(true)
-                    return@getUserInfo
+                    if(it){
+                        completion(true)
+                        return@getUserInfo
+                    } else{
+                        completion(false)
+                        return@getUserInfo
+                    }
                 }
             } else{
                 completion(false)
@@ -84,8 +90,13 @@ class UserManagement {
         )).addOnCompleteListener {
             if(it.isSuccessful){
                 getUserInfo {
-                    completion(true)
-                    return@getUserInfo
+                    if(it){
+                        completion(true)
+                        return@getUserInfo
+                    } else{
+                        completion(false)
+                        return@getUserInfo
+                    }
                 }
             } else{
                 completion(false)
@@ -111,19 +122,22 @@ class UserManagement {
                     val phone = document.get("phone") as? String ?: ""
                     val birthDay = document.get("birthDay") as? String ?: ""
 
-                    db.collection("FeatureInformation").document(UID).get().addOnCompleteListener {
+                    db.collection("FeatureInformation").document(AES256Util.encrypt(auth.currentUser?.uid ?: "")).get().addOnCompleteListener {
                         if(it.isSuccessful){
                             val featureDoc = it.result
 
                             if(featureDoc != null && featureDoc.exists()){
-                                val isChildAbuseAttacker = featureDoc.get(AES256Util.decrypt("isChildAbuseAttacker")) as? Boolean ?: false
-                                val isChildAbuseVictim = featureDoc.get(AES256Util.decrypt("isChildAbuseVictim")) as? Boolean ?: false
-                                val isDomesticViolenceAttacker = featureDoc.get(AES256Util.decrypt("isDomesticViolenceAttacker")) as? Boolean ?: false
-                                val isDomesticViolenceVictim = featureDoc.get(AES256Util.decrypt("isDomesticViolenceVictim")) as? Boolean ?: false
-                                val isPsychosis = featureDoc.get(AES256Util.decrypt("isPsychosis")) as? Boolean ?: false
+                                val isChildAbuseAttacker = featureDoc.get(FieldPath.of(AES256Util.encrypt("isChildAbuseAttacker"))) as? Boolean ?: false
+                                val isChildAbuseVictim = featureDoc.get(FieldPath.of(AES256Util.encrypt("isChildAbuseVictim"))) as? Boolean ?: false
+                                val isDomesticViolenceAttacker = featureDoc.get(FieldPath.of(AES256Util.encrypt("isDomesticViolenceAttacker"))) as? Boolean ?: false
+                                val isDomesticViolenceVictim = featureDoc.get(FieldPath.of(AES256Util.encrypt("isDomesticViolenceVictim"))) as? Boolean ?: false
+                                val isPsychosis = featureDoc.get(FieldPath.of(AES256Util.encrypt("isPsychosis"))) as? Boolean ?: false
 
                                 userInfo = UserInfoModel(UID = UID, email = AES256Util.decrypt(email), name = AES256Util.decrypt(name), AES256Util.decrypt(nickName), AES256Util.decrypt(phone), AES256Util.decrypt(birthDay), isChildAbuseAttacker, isChildAbuseVictim, isDomesticViolenceAttacker, isDomesticViolenceVictim, isPsychosis)
                                 completion(true)
+                                return@addOnCompleteListener
+                            } else{
+                                completion(false)
                                 return@addOnCompleteListener
                             }
                         } else{
@@ -135,6 +149,9 @@ class UserManagement {
                         completion(false)
                         return@addOnFailureListener
                     }
+                } else{
+                    completion(false)
+                    return@addOnCompleteListener
                 }
             } else{
                 completion(false)

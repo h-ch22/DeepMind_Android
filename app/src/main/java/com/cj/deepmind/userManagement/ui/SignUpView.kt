@@ -181,7 +181,7 @@ fun SignUpView() {
     DeepMindTheme {
         NavHost(navController = navController, startDestination = "SignUpView") {
             composable(route = "UploadFeatureView") {
-                
+                UploadFeatureView()
             }
 
             composable(route = "SignUpView") {
@@ -660,12 +660,12 @@ fun SignUpView() {
                                                             }
                                                         }
                                                     } else{
+                                                        showProgress.value = false
                                                         alertModel.value = SignUpAlertModel.ERROR
                                                         showAlert.value = true
                                                     }
                                                 }
 
-                                                showProgress.value = false
                                             }
                                         },
                                         modifier = Modifier

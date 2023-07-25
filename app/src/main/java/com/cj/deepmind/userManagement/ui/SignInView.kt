@@ -1,5 +1,6 @@
 package com.cj.deepmind.userManagement.ui
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -58,6 +59,7 @@ import androidx.navigation.compose.rememberNavController
 import com.cj.deepmind.R
 import com.cj.deepmind.frameworks.helper.AES256Util
 import com.cj.deepmind.frameworks.helper.DataStoreUtil
+import com.cj.deepmind.frameworks.ui.MainActivity
 import com.cj.deepmind.ui.theme.DeepMindColorPalette
 import com.cj.deepmind.ui.theme.DeepMindTheme
 import com.cj.deepmind.ui.theme.accent
@@ -86,6 +88,10 @@ fun SignInView(){
         mutableStateOf(false)
     }
 
+    val isSuccess = remember{
+        mutableStateOf(false)
+    }
+
     val context = LocalContext.current
     val helper = UserManagement()
     val dataStoreUtil = DataStoreUtil(context)
@@ -106,6 +112,17 @@ fun SignInView(){
                         if(AES256Util.decrypt(authInfo.value.email) != "" &&
                             AES256Util.decrypt(authInfo.value.password) != ""){
                             showProgress.value = true
+
+                            helper.signIn(email = AES256Util.decrypt(authInfo.value.email), password = AES256Util.decrypt(authInfo.value.password)){
+                                if(it){
+                                    isSuccess.value = true
+                                } else{
+                                    showAlert.value = true
+                                    showProgress.value = false
+                                }
+
+                            }
+
                         }
                     }
 
@@ -230,12 +247,12 @@ fun SignInView(){
 
                                     helper.signIn(email.value, password.value){
                                         if(it){
-
+                                            isSuccess.value = true
                                         } else{
-                                            
+                                            showAlert.value = true
+                                            showProgress.value = false
                                         }
 
-                                        showProgress.value = false
                                     }
                                 },
                                 modifier = Modifier
@@ -329,6 +346,14 @@ fun SignInView(){
                                     ) {
                                         CircularProgressIndicator(color = accent)
                                     }
+                                }
+                            }
+
+                            if(isSuccess.value){
+                                LaunchedEffect(key1 = true){
+                                    dataStoreUtil.saveToDataStore(AES256Util.encrypt(email.value), AES256Util.encrypt(password.value))
+
+                                    context.startActivity(Intent(context, MainActivity :: class.java))
                                 }
                             }
 
