@@ -1,5 +1,6 @@
 package com.cj.deepmind.frameworks.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -53,9 +54,6 @@ class StartActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.destination?.route
-            val activity = (LocalContext.current as? StartActivity)
 
             DeepMindTheme {
                 NavHost(navController = navController, startDestination = "Splash"){
@@ -64,7 +62,7 @@ class StartActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxSize(),
                             color = DeepMindColorPalette.current.background
                         ) {
-                            splash(navController = navController, viewModel = viewModel)
+                            SplashView(navController = navController, viewModel = viewModel)
                         }
                     }
 
@@ -76,68 +74,7 @@ class StartActivity : ComponentActivity() {
                         SignInView()
                     }
                 }
-
             }
         }
-    }
-}
-
-@Composable
-fun splash(navController: NavController, viewModel: SplashViewModel){
-    val context = LocalContext.current
-
-    LaunchedEffect(key1 = true){
-        if(!viewModel.isSignedIn.value){
-            navController.navigate("SignInView"){
-                popUpTo("Splash"){
-                    inclusive = true
-                }
-            }
-        } else{
-            //TODO : Navigate to MainActivity
-        }
-    }
-
-    Column(modifier = Modifier.padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center){
-        Spacer(modifier = Modifier.weight(1f))
-
-        Image(
-            painter = painterResource(id = R.drawable.ic_deepmind),
-            contentDescription = null,
-            modifier = Modifier
-                .width(180.dp)
-                .height(180.dp)
-                .shadow(
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    clip = true
-                )
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(
-            text = "DeepMind",
-            modifier = Modifier,
-            color = DeepMindColorPalette.current.txtColor,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        CircularProgressIndicator(modifier = Modifier,
-            color = accent)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DeepMindTheme {
-        splash(navController = NavController(LocalContext.current), viewModel = SplashViewModel())
     }
 }
