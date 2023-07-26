@@ -1,10 +1,11 @@
 package com.cj.deepmind.frameworks.ui
 
 import android.Manifest
-import android.app.NotificationManager
-import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -53,7 +55,10 @@ import com.cj.deepmind.frameworks.models.NavigationGraph
 import com.cj.deepmind.inspection.ui.InspectionMainView
 import com.cj.deepmind.ui.theme.DeepMindColorPalette
 import com.cj.deepmind.ui.theme.accent
+import com.cj.deepmind.ui.theme.background
+import com.cj.deepmind.ui.theme.backgroundAsDark
 import com.cj.deepmind.ui.theme.gray
+import com.cj.deepmind.ui.theme.red
 import com.cj.deepmind.ui.theme.white
 import kotlinx.coroutines.launch
 
@@ -61,7 +66,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainView() {
     val navController = rememberNavController()
-    val items = listOf<BottomNavigationItem>(
+    val items = listOf(
         BottomNavigationItem.Home,
         BottomNavigationItem.Diary,
         BottomNavigationItem.History,
@@ -142,7 +147,7 @@ fun MainView() {
                             )
                         }
                     },
-                    containerColor = DeepMindColorPalette.current.background
+                    containerColor = if(isSystemInDarkTheme()) backgroundAsDark else background
                 )
             }
         }
@@ -169,7 +174,7 @@ fun MainView() {
                             .fillMaxWidth()
                             .wrapContentHeight()
                     ) {
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.background(color = if(isSystemInDarkTheme()) backgroundAsDark else background)) {
                             Spacer(modifier = Modifier.weight(1f))
 
                             IconButton(onClick = {
@@ -227,7 +232,7 @@ fun MainView() {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun MainView_previews() {
     MainView()

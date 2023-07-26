@@ -29,6 +29,7 @@ import com.cj.deepmind.frameworks.models.SplashViewModel
 import com.cj.deepmind.ui.theme.DeepMindColorPalette
 import com.cj.deepmind.ui.theme.DeepMindTheme
 import com.cj.deepmind.ui.theme.accent
+import com.cj.deepmind.userManagement.helper.UserManagement
 
 @Composable
 fun SplashView(navController: NavController, viewModel: SplashViewModel){
@@ -44,7 +45,18 @@ fun SplashView(navController: NavController, viewModel: SplashViewModel){
                 }
             }
         } else{
-            context.startActivity(Intent(context, MainActivity::class.java))
+            val helper = UserManagement()
+            helper.getUserInfo {
+                if(it){
+                    context.startActivity(Intent(context, MainActivity::class.java))
+                } else{
+                    navController.navigate("SignInView"){
+                        popUpTo("Splash"){
+                            inclusive = true
+                        }
+                    }
+                }
+            }
         }
     }
 

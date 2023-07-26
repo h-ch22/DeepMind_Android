@@ -276,9 +276,9 @@ fun SignUpView() {
                                         maxLines = 1,
                                         singleLine = true
                                     )
-
-                                    Spacer(modifier = Modifier.height(20.dp))
                                 }
+
+                                Spacer(modifier = Modifier.height(20.dp))
 
                                 AnimatedVisibility(visible = email.value != "") {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally){
@@ -360,7 +360,6 @@ fun SignUpView() {
                                 }
 
                                 Spacer(modifier = Modifier.height(20.dp))
-
 
                                 AnimatedVisibility(visible = checkPassword.value != "") {
                                     title.value = "이름을 입력해주세요."
