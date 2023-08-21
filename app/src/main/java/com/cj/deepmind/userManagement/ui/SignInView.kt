@@ -324,7 +324,7 @@ fun SignInView(){
                             Spacer(modifier = Modifier.weight(1f))
 
                             Text(
-                                text = "© 2023. Changjin Ha, Yujee Jang\nAll Rights Reserved.",
+                                text = "© 2023. Changjin Ha, Yujee Chang\nAll Rights Reserved.",
                                 color = gray,
                                 fontSize = 10.sp,
                                 textAlign = TextAlign.Center

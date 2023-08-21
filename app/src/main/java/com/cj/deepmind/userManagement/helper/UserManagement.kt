@@ -81,7 +81,7 @@ class UserManagement {
     }
 
     fun uploadFeatures(isChildAbuseAttacker: Boolean, isChildAbuseVictim: Boolean, isDomesticViolenceAttacker: Boolean, isDomesticViolenceVictim: Boolean, isPsychosis: Boolean, completion: (Boolean) -> Unit){
-        db.collection("FeatureInformation").document(AES256Util.encrypt(auth.currentUser?.uid ?: "")).set(hashMapOf(
+        db.collection("FeatureInformation").document(auth.currentUser?.uid ?: "").set(hashMapOf(
             AES256Util.encrypt("isChildAbuseAttacker") to isChildAbuseAttacker,
             AES256Util.encrypt("isChildAbuseVictim") to isChildAbuseVictim,
             AES256Util.encrypt("isDomesticViolenceAttacker") to isDomesticViolenceAttacker,
@@ -122,7 +122,7 @@ class UserManagement {
                     val phone = document.get("phone") as? String ?: ""
                     val birthDay = document.get("birthDay") as? String ?: ""
 
-                    db.collection("FeatureInformation").document(AES256Util.encrypt(auth.currentUser?.uid ?: "")).get().addOnCompleteListener {
+                    db.collection("FeatureInformation").document(auth.currentUser?.uid ?: "").get().addOnCompleteListener {
                         if(it.isSuccessful){
                             val featureDoc = it.result
 

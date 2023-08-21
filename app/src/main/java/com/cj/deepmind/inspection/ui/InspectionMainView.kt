@@ -42,6 +42,10 @@ fun InspectionMainView(){
 
     DeepMindTheme {
         NavHost(navController = navController, startDestination = "InspectionMainView") {
+            composable("InspectionDrawingView"){
+                InspectionDrawingView()
+            }
+
             composable("InspectionMainView") {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -107,7 +111,11 @@ fun InspectionMainView(){
 
                         Button(
                             onClick = {
-
+                                navController.navigate("InspectionDrawingView") {
+                                    popUpTo("InspectionMainView") {
+                                        inclusive = false
+                                    }
+                                }
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
