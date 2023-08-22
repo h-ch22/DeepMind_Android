@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cj.deepmind.frameworks.models.MainViewModel
 import com.cj.deepmind.ui.theme.DeepMindColorPalette
 import com.cj.deepmind.ui.theme.DeepMindTheme
 import com.cj.deepmind.ui.theme.accent
@@ -37,15 +38,11 @@ import com.cj.deepmind.ui.theme.gray
 import com.cj.deepmind.ui.theme.white
 
 @Composable
-fun InspectionMainView(){
+fun InspectionMainView(viewModel: MainViewModel){
     val navController = rememberNavController()
 
     DeepMindTheme {
         NavHost(navController = navController, startDestination = "InspectionMainView") {
-            composable("InspectionDrawingView"){
-                InspectionDrawingView()
-            }
-
             composable("InspectionMainView") {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -111,11 +108,7 @@ fun InspectionMainView(){
 
                         Button(
                             onClick = {
-                                navController.navigate("InspectionDrawingView") {
-                                    popUpTo("InspectionMainView") {
-                                        inclusive = false
-                                    }
-                                }
+                                viewModel.setInspectionDrawingViewState(true)
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -147,5 +140,5 @@ fun InspectionMainView(){
 @Preview(showBackground = true)
 @Composable
 fun InspectionMainView_previews(){
-    InspectionMainView()
+    InspectionMainView(viewModel=MainViewModel())
 }

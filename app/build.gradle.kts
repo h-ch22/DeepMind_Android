@@ -67,6 +67,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.material3:material3-android:1.2.0-alpha03")
     implementation("androidx.compose.material:material:1.4.3")
+    implementation(libs.capturable)
     implementation(libs.play.services.location)
     implementation(libs.accompanist.permissions)
     implementation(libs.map.sdk)

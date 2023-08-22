@@ -7,11 +7,12 @@ import androidx.navigation.compose.composable
 import com.cj.deepmind.diary.ui.DiaryView
 import com.cj.deepmind.history.ui.HistoryView
 import com.cj.deepmind.home.ui.HomeView
+import com.cj.deepmind.inspection.ui.InspectionDrawingView
 import com.cj.deepmind.inspection.ui.InspectionMainView
 import com.cj.deepmind.more.ui.MoreView
 
 @Composable
-fun NavigationGraph(navController : NavHostController){
+fun NavigationGraph(navController : NavHostController, viewModel: MainViewModel){
     NavHost(navController = navController, startDestination = BottomNavigationItem.Home.screenRoute){
         composable(BottomNavigationItem.Home.screenRoute){
             HomeView()
@@ -21,16 +22,16 @@ fun NavigationGraph(navController : NavHostController){
             DiaryView()
         }
 
-        composable(BottomNavigationItem.Inspection.screenRoute){
-            InspectionMainView()
-        }
-
         composable(BottomNavigationItem.History.screenRoute){
             HistoryView()
         }
 
         composable(BottomNavigationItem.More.screenRoute){
             MoreView()
+        }
+
+        composable(BottomNavigationItem.inspectionDrawingView.screenRoute){
+            InspectionDrawingView(mainViewModel = viewModel)
         }
     }
 }

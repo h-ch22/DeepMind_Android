@@ -13,6 +13,7 @@ const val DIARY = "DIARY"
 const val INSPECTION = "INSPECTION"
 const val HISTORY = "HISTORY"
 const val MORE = "MORE"
+const val DRAWING_VIEW = "DRAWING_VIEW"
 
 sealed class BottomNavigationItem(
     val title : String, val icon : ImageVector, val screenRoute : String
@@ -35,5 +36,9 @@ sealed class BottomNavigationItem(
 
     object More : BottomNavigationItem(
         "더 보기", Icons.Default.MoreHoriz, MORE
+    )
+
+    object inspectionDrawingView: BottomNavigationItem(
+        "HTP 검사", Icons.Default.Edit, DRAWING_VIEW
     )
 }

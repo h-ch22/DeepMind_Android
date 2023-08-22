@@ -1,6 +1,7 @@
 [versions]
 accompanist-permissions = "0.24.13-rc"
 accompanist-systemuicontroller = "0.27.0"
+capturable = "1.0.3"
 com-android-application = "8.1.0-rc01"
 datastore-preferences = "1.0.0"
 firebase-bom = "31.4.0"
@@ -27,6 +28,7 @@ accompanist-webview = { module = "com.google.accompanist:accompanist-webview", v
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel-compose" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+capturable = { module = "dev.shreyaspatil:capturable", version.ref = "capturable" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-bom-31_3_0 = { module = "com.google.firebase:firebase-bom", version.ref = "google-firebase-bom" }
