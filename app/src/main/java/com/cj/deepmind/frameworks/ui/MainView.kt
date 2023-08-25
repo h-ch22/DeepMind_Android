@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,6 +52,11 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.cj.deepmind.frameworks.models.BottomNavigationItem
+import com.cj.deepmind.frameworks.models.DIARY
+import com.cj.deepmind.frameworks.models.DRAWING_VIEW
+import com.cj.deepmind.frameworks.models.HISTORY
+import com.cj.deepmind.frameworks.models.HOME
+import com.cj.deepmind.frameworks.models.MORE
 import com.cj.deepmind.frameworks.models.MainViewModel
 import com.cj.deepmind.frameworks.models.NavigationGraph
 import com.cj.deepmind.inspection.ui.InspectionCanvasView
@@ -78,11 +84,25 @@ fun MainView(viewModel: MainViewModel) {
     val coroutineScope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    var showBottomBar by remember {
+        mutableStateOf(
+            true
+        )
+    }
+
+    navBackStackEntry?.destination?.route?.let{ route ->
+        showBottomBar = when(route){
+            HOME, DIARY, HISTORY, MORE -> true
+            else -> false
+        }
+    }
+
+    viewModel.setInspectionDrawingViewState(navBackStackEntry?.destination?.route == DRAWING_VIEW)
 
     val modalSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = {
-            viewModel.setBottomBarState(it == ModalBottomSheetValue.Hidden)
+            showBottomBar = (it == ModalBottomSheetValue.Hidden)
             it != ModalBottomSheetValue.HalfExpanded
         },
         skipHalfExpanded = true
@@ -97,7 +117,7 @@ fun MainView(viewModel: MainViewModel) {
     BackHandler {
         if (modalSheetState.isVisible) {
             coroutineScope.launch {
-                viewModel.setBottomBarState(true)
+                showBottomBar = true
                 modalSheetState.hide()
             }
         } else {
@@ -107,7 +127,7 @@ fun MainView(viewModel: MainViewModel) {
 
     Scaffold(
         bottomBar = {
-            if (viewModel.showBottomBar.value!!) {
+            if (showBottomBar) {
                 BottomAppBar(
                     actions = {
                         items.forEach { item ->
@@ -133,10 +153,10 @@ fun MainView(viewModel: MainViewModel) {
                         FloatingActionButton(onClick = {
                             coroutineScope.launch {
                                 if (modalSheetState.isVisible) {
-                                    viewModel.setBottomBarState(true)
+                                    showBottomBar = true
                                     modalSheetState.hide()
                                 } else {
-                                    viewModel.setBottomBarState(false)
+                                    showBottomBar = false
                                     modalSheetState.show()
                                 }
                             }
@@ -164,7 +184,7 @@ fun MainView(viewModel: MainViewModel) {
             }
         }
         Box(modifier = Modifier.padding(it)) {
-            NavigationGraph(navController = navController, viewModel = viewModel)
+            NavigationGraph(navController = navController)
         }
 
         ModalBottomSheetLayout(
@@ -180,7 +200,7 @@ fun MainView(viewModel: MainViewModel) {
 
                             IconButton(onClick = {
                                 coroutineScope.launch {
-                                    viewModel.setBottomBarState(true)
+                                    showBottomBar = true
                                     modalSheetState.hide()
                                 }
                             }) {
@@ -235,7 +255,6 @@ fun MainView(viewModel: MainViewModel) {
             LaunchedEffect(key1 = true){
                 coroutineScope.launch {
                     modalSheetState.hide()
-                    viewModel.setBottomBarState(false)
 
                     navController.navigate(BottomNavigationItem.inspectionDrawingView.screenRoute) {
                         navController.graph.startDestinationRoute?.let {

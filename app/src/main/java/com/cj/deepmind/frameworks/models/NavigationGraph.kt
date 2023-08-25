@@ -9,10 +9,11 @@ import com.cj.deepmind.history.ui.HistoryView
 import com.cj.deepmind.home.ui.HomeView
 import com.cj.deepmind.inspection.ui.InspectionDrawingView
 import com.cj.deepmind.inspection.ui.InspectionMainView
+import com.cj.deepmind.inspection.ui.onInspectionView
 import com.cj.deepmind.more.ui.MoreView
 
 @Composable
-fun NavigationGraph(navController : NavHostController, viewModel: MainViewModel){
+fun NavigationGraph(navController : NavHostController){
     NavHost(navController = navController, startDestination = BottomNavigationItem.Home.screenRoute){
         composable(BottomNavigationItem.Home.screenRoute){
             HomeView()
@@ -31,7 +32,8 @@ fun NavigationGraph(navController : NavHostController, viewModel: MainViewModel)
         }
 
         composable(BottomNavigationItem.inspectionDrawingView.screenRoute){
-            InspectionDrawingView(mainViewModel = viewModel)
+            InspectionDrawingView()
+//            onInspectionView()
         }
     }
 }

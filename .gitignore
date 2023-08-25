@@ -18,3 +18,4 @@ google-services.json
 Android.mk
 Application.mk
 keys.c
+/app/src/main/assets

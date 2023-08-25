@@ -96,8 +96,7 @@ fun getACode(code: Int): String? {
 }
 
 @Composable
-fun InspectionDrawingView(viewModel: InspectionDrawingViewModel = InspectionDrawingViewModel(),
-                          mainViewModel: MainViewModel) {
+fun InspectionDrawingView(viewModel: InspectionDrawingViewModel = InspectionDrawingViewModel()) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val currentIndex = remember {
@@ -126,15 +125,9 @@ fun InspectionDrawingView(viewModel: InspectionDrawingViewModel = InspectionDraw
             }
         }
 
-        DisposableEffect(Unit){
-            onDispose {
-                mainViewModel.setBottomBarState(true)
-            }
-        }
-
         NavHost(navController = navController, startDestination = "InspectionDrawingView") {
             composable(route = "onInspectionView") {
-
+                onInspectionView()
             }
 
             composable(route = "InspectionDrawingView") {
@@ -238,7 +231,7 @@ fun InspectionDrawingView(viewModel: InspectionDrawingViewModel = InspectionDraw
                                     Log.d("InspectionDrawingView", "Image saved to ${path}")
 
                                     canvasBitmap = null
-                                    
+
                                     viewModel.updateClearState(true)
                                     elapsedTime = 0
 
@@ -246,7 +239,11 @@ fun InspectionDrawingView(viewModel: InspectionDrawingViewModel = InspectionDraw
                                         currentIndex.value += 1
 
                                     } else {
-
+                                        navController.navigate("onInspectionView") {
+                                            popUpTo("InspectionDrawingView") {
+                                                inclusive = false
+                                            }
+                                        }
                                     }
                                 } catch (e: Exception) {
                                     e.printStackTrace()
@@ -290,5 +287,5 @@ fun InspectionDrawingView(viewModel: InspectionDrawingViewModel = InspectionDraw
 @Preview
 @Composable
 fun InspectionDrawingView_previews() {
-    InspectionDrawingView(mainViewModel = MainViewModel())
+    InspectionDrawingView()
 }
