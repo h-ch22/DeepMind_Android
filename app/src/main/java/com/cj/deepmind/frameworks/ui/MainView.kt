@@ -52,10 +52,11 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.cj.deepmind.frameworks.models.BottomNavigationItem
-import com.cj.deepmind.frameworks.models.DIARY
+import com.cj.deepmind.frameworks.models.COMMUNITY
 import com.cj.deepmind.frameworks.models.DRAWING_VIEW
-import com.cj.deepmind.frameworks.models.HISTORY
 import com.cj.deepmind.frameworks.models.HOME
+import com.cj.deepmind.frameworks.models.MANAGE_CONSULTING
+import com.cj.deepmind.frameworks.models.MAP
 import com.cj.deepmind.frameworks.models.MORE
 import com.cj.deepmind.frameworks.models.MainViewModel
 import com.cj.deepmind.frameworks.models.NavigationGraph
@@ -68,6 +69,8 @@ import com.cj.deepmind.ui.theme.backgroundAsDark
 import com.cj.deepmind.ui.theme.gray
 import com.cj.deepmind.ui.theme.red
 import com.cj.deepmind.ui.theme.white
+import com.cj.deepmind.userManagement.helper.UserManagement
+import com.cj.deepmind.userManagement.models.UserTypeModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -75,12 +78,21 @@ import kotlinx.coroutines.launch
 fun MainView(viewModel: MainViewModel) {
 
     val navController = rememberNavController()
-    val items = listOf(
+
+    val customerItems = listOf(
         BottomNavigationItem.Home,
-        BottomNavigationItem.Diary,
-        BottomNavigationItem.History,
+        BottomNavigationItem.Map,
+        BottomNavigationItem.Community,
         BottomNavigationItem.More
     )
+
+    val professionalItems = listOf(
+        BottomNavigationItem.Home,
+        BottomNavigationItem.ManageConsulting,
+        BottomNavigationItem.Community,
+        BottomNavigationItem.More
+    )
+
     val coroutineScope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -92,7 +104,7 @@ fun MainView(viewModel: MainViewModel) {
 
     navBackStackEntry?.destination?.route?.let{ route ->
         showBottomBar = when(route){
-            HOME, DIARY, HISTORY, MORE -> true
+            HOME, MAP, MANAGE_CONSULTING, COMMUNITY, MORE -> true
             else -> false
         }
     }
@@ -130,24 +142,46 @@ fun MainView(viewModel: MainViewModel) {
             if (showBottomBar) {
                 BottomAppBar(
                     actions = {
-                        items.forEach { item ->
-                            IconButton(onClick = {
-                                navController.navigate(item.screenRoute) {
-                                    navController.graph.startDestinationRoute?.let {
-                                        popUpTo(it)
-                                    }
+                        if(UserManagement.userInfo?.type == UserTypeModel.PROFESSIONAL){
+                            professionalItems.forEach { item ->
+                                IconButton(onClick = {
+                                    navController.navigate(item.screenRoute) {
+                                        navController.graph.startDestinationRoute?.let {
+                                            popUpTo(it)
+                                        }
 
-                                    launchSingleTop = true
-                                    restoreState = true
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = item.icon,
+                                        contentDescription = null,
+                                        tint = if (currentRoute == item.screenRoute) accent else gray
+                                    )
                                 }
-                            }) {
-                                Icon(
-                                    imageVector = item.icon,
-                                    contentDescription = null,
-                                    tint = if (currentRoute == item.screenRoute) accent else gray
-                                )
+                            }
+                        } else{
+                            customerItems.forEach { item ->
+                                IconButton(onClick = {
+                                    navController.navigate(item.screenRoute) {
+                                        navController.graph.startDestinationRoute?.let {
+                                            popUpTo(it)
+                                        }
+
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = item.icon,
+                                        contentDescription = null,
+                                        tint = if (currentRoute == item.screenRoute) accent else gray
+                                    )
+                                }
                             }
                         }
+
                     },
                     floatingActionButton = {
                         FloatingActionButton(onClick = {
@@ -243,7 +277,7 @@ fun MainView(viewModel: MainViewModel) {
                     Text("권한 상승 필요")
                 },
                 text = {
-                    Text("검사 결과 확인, 통계, 하루 일기 알림 등을 위해 알림 권한이 필요합니다.")
+                    Text("검사 결과 확인, 커뮤니티 알림 등을 위해 알림 권한이 필요합니다.")
                 },
                 icon = {
                     Icon(imageVector = Icons.Default.Notifications, contentDescription = null)

@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoGraph
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
@@ -27,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,13 +40,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cj.deepmind.R
+import com.cj.deepmind.diary.ui.DiaryView
 import com.cj.deepmind.frameworks.helper.AES256Util
+import com.cj.deepmind.history.ui.HistoryView
 import com.cj.deepmind.ui.theme.DeepMindColorPalette
 import com.cj.deepmind.ui.theme.DeepMindTheme
 import com.cj.deepmind.ui.theme.accent
 import com.cj.deepmind.ui.theme.gray
 import com.cj.deepmind.ui.theme.red
 import com.cj.deepmind.userManagement.helper.UserManagement
+import com.cj.deepmind.userManagement.models.ProBadgeView
+import com.cj.deepmind.userManagement.models.UserTypeModel
 import com.cj.deepmind.userManagement.ui.ProfileView
 
 @Composable
@@ -57,6 +65,14 @@ fun MoreView(){
 
             composable("ProfileView"){
                 ProfileView()
+            }
+
+            composable("DiaryView"){
+                DiaryView()
+            }
+
+            composable("StatisticsView"){
+                HistoryView()
             }
 
             composable(route = "MoreView") {
@@ -107,6 +123,7 @@ fun MoreView(){
                                 Image(
                                     painter = painterResource(id = R.drawable.ic_deepmind),
                                     contentDescription = null,
+                                    contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .width(50.dp)
                                         .height(50.dp)
@@ -114,12 +131,20 @@ fun MoreView(){
                                 )
 
                                 Spacer(modifier = Modifier.width(5.dp))
+
                                 Text(
-                                    AES256Util.decrypt(UserManagement.userInfo?.nickName),
+                                    UserManagement.userInfo?.nickName ?: "",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = DeepMindColorPalette.current.txtColor
                                 )
+
+                                if(UserManagement.userInfo?.type == UserTypeModel.PROFESSIONAL){
+                                    Spacer(modifier = Modifier.width(5.dp))
+
+                                    ProBadgeView()
+                                }
+
                                 Spacer(modifier = Modifier.weight(1f))
                             }
                         }
@@ -131,36 +156,12 @@ fun MoreView(){
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Button(
-                            onClick = { /*TODO*/ },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = DeepMindColorPalette.current.btnColor
-                            ), elevation = ButtonDefaults.buttonElevation(5.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp),
-                            shape = RoundedCornerShape(15.dp)
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(imageVector = Icons.Default.Notifications, contentDescription = null, tint = accent,
-                                    modifier = Modifier.size(30.dp))
-
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Text(
-                                    "공지사항",
-                                    fontSize = 18.sp,
-                                    color = DeepMindColorPalette.current.txtColor
-                                )
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Button(
                             onClick = {
+                                navController.navigate("StatisticsView") {
+                                    popUpTo("MoreView") {
+                                        inclusive = false
+                                    }
+                                }
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = DeepMindColorPalette.current.btnColor
@@ -174,20 +175,99 @@ fun MoreView(){
                                 horizontalArrangement = Arrangement.Start,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(imageVector = Icons.Default.Favorite, contentDescription = null, tint = red,
-                                    modifier = Modifier.size(30.dp))
-
+                                Icon(
+                                    imageVector = Icons.Default.AutoGraph,
+                                    contentDescription = null,
+                                    tint = DeepMindColorPalette.current.txtColor,
+                                    modifier = Modifier.size(30.dp)
+                                )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
-                                    "피드백 허브",
-                                    fontSize = 18.sp,
+                                    "통계 및 검사 기록",
+                                    fontSize = 15.sp,
                                     color = DeepMindColorPalette.current.txtColor
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Button(
+                            onClick = {
+                                navController.navigate("DiaryView") {
+                                    popUpTo("MoreView") {
+                                        inclusive = false
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = DeepMindColorPalette.current.btnColor
+                            ), elevation = ButtonDefaults.buttonElevation(5.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp),
+                            shape = RoundedCornerShape(15.dp)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Book,
+                                    contentDescription = null,
+                                    tint = DeepMindColorPalette.current.txtColor,
+                                    modifier = Modifier.size(30.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    "성장 일기",
+                                    fontSize = 15.sp,
+                                    color = DeepMindColorPalette.current.txtColor
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Button(
+                            onClick = {
+                                navController.navigate("StatisticsView") {
+                                    popUpTo("MoreView") {
+                                        inclusive = false
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = DeepMindColorPalette.current.btnColor
+                            ), elevation = ButtonDefaults.buttonElevation(5.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp),
+                            shape = RoundedCornerShape(15.dp)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CalendarMonth,
+                                    contentDescription = null,
+                                    tint = DeepMindColorPalette.current.txtColor,
+                                    modifier = Modifier.size(30.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    "병원 예약 기록",
+                                    fontSize = 15.sp,
+                                    color = DeepMindColorPalette.current.txtColor
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
 
                         Button(
                             onClick = {
@@ -218,7 +298,7 @@ fun MoreView(){
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
                                     "정보",
-                                    fontSize = 18.sp,
+                                    fontSize = 15.sp,
                                     color = DeepMindColorPalette.current.txtColor
                                 )
                                 Spacer(modifier = Modifier.weight(1f))

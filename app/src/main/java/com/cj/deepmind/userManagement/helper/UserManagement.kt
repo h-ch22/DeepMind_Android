@@ -2,6 +2,7 @@ package com.cj.deepmind.userManagement.helper
 
 import com.cj.deepmind.frameworks.helper.AES256Util
 import com.cj.deepmind.userManagement.models.UserInfoModel
+import com.cj.deepmind.userManagement.models.UserTypeModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
@@ -37,7 +38,7 @@ class UserManagement {
         }
     }
 
-    fun signUp(email: String, password: String, name: String, nickName: String, phone: String, birthDay: String, completion: (Boolean) -> Unit){
+    fun signUp(email: String, password: String, name: String, nickName: String, phone: String, birthDay: String, type: UserTypeModel, agency: String?, completion: (Boolean) -> Unit){
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
             if(it.isSuccessful){
                 db.collection("Users").document(auth.currentUser?.uid ?: "").set(hashMapOf(
@@ -45,7 +46,9 @@ class UserManagement {
                     "name" to AES256Util.encrypt(name),
                     "nickName" to AES256Util.encrypt(nickName),
                     "phone" to AES256Util.encrypt(phone),
-                    "birthDay" to AES256Util.encrypt(birthDay)
+                    "birthDay" to AES256Util.encrypt(birthDay),
+                    "type" to type.getACode(),
+                    "agency" to if(agency != null) AES256Util.encrypt(agency) else null
                 )).addOnCompleteListener {
                     if(it.isSuccessful){
                         completion(true)
@@ -121,6 +124,8 @@ class UserManagement {
                     val nickName = document.get("nickName") as? String ?: ""
                     val phone = document.get("phone") as? String ?: ""
                     val birthDay = document.get("birthDay") as? String ?: ""
+                    val type = document.get("type") as? String ?: ""
+                    val agency = document.get("agency") as? String ?: ""
 
                     db.collection("FeatureInformation").document(auth.currentUser?.uid ?: "").get().addOnCompleteListener {
                         if(it.isSuccessful){
@@ -133,7 +138,7 @@ class UserManagement {
                                 val isDomesticViolenceVictim = featureDoc.get(FieldPath.of(AES256Util.encrypt("isDomesticViolenceVictim"))) as? Boolean ?: false
                                 val isPsychosis = featureDoc.get(FieldPath.of(AES256Util.encrypt("isPsychosis"))) as? Boolean ?: false
 
-                                userInfo = UserInfoModel(UID = UID, email = AES256Util.decrypt(email), name = AES256Util.decrypt(name), AES256Util.decrypt(nickName), AES256Util.decrypt(phone), AES256Util.decrypt(birthDay), isChildAbuseAttacker, isChildAbuseVictim, isDomesticViolenceAttacker, isDomesticViolenceVictim, isPsychosis)
+                                userInfo = UserInfoModel(UID = UID, email = AES256Util.decrypt(email), name = AES256Util.decrypt(name), AES256Util.decrypt(nickName), AES256Util.decrypt(phone), AES256Util.decrypt(birthDay), if(type == "Professional") UserTypeModel.PROFESSIONAL else UserTypeModel.CUSTOMER, if(agency != "") AES256Util.decrypt(agency) else agency, isChildAbuseAttacker, isChildAbuseVictim, isDomesticViolenceAttacker, isDomesticViolenceVictim, isPsychosis)
                                 completion(true)
                                 return@addOnCompleteListener
                             } else{

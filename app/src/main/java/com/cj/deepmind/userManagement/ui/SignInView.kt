@@ -99,8 +99,8 @@ fun SignInView(){
 
     DeepMindTheme {
         NavHost(navController = navController, startDestination = "SignInView") {
-            composable("SignUpView"){
-                SignUpView()
+            composable("UserTypeSelectionView"){
+                UserTypeSelectionView()
             }
 
             composable("SignInView"){
@@ -281,9 +281,9 @@ fun SignInView(){
 
                             Button(
                                 onClick = {
-                                    navController.navigate("SignUpView") {
+                                    navController.navigate("UserTypeSelectionView") {
                                         popUpTo("SignInView") {
-                                            inclusive = false
+                                            inclusive = true
                                         }
                                     }
                                 },

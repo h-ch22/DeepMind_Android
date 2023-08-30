@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ChevronRight
@@ -79,6 +80,7 @@ import com.cj.deepmind.ui.theme.red
 import com.cj.deepmind.ui.theme.white
 import com.cj.deepmind.userManagement.helper.UserManagement
 import com.cj.deepmind.userManagement.models.SignUpAlertModel
+import com.cj.deepmind.userManagement.models.UserTypeModel
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -108,7 +110,7 @@ fun getAlertContents(alertModel: SignUpAlertModel) : String{
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpView() {
+fun SignUpView(type: UserTypeModel) {
     val title = remember {
         mutableStateOf("반가워요!")
     }
@@ -134,6 +136,10 @@ fun SignUpView() {
     }
 
     val phoneNumber = remember {
+        mutableStateOf("")
+    }
+
+    val agency = remember{
         mutableStateOf("")
     }
 
@@ -515,10 +521,53 @@ fun SignUpView() {
                                         })
                                 }
 
+                                if(type == UserTypeModel.PROFESSIONAL && birthDay.value != birthDayDefaultValue){
+                                    Spacer(modifier = Modifier.height(20.dp))
+
+                                    AnimatedVisibility(visible = birthDay.value != birthDayDefaultValue) {
+                                        title.value = "소속기관을 입력해주세요."
+
+                                        OutlinedTextField(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            value = agency.value,
+                                            onValueChange = { textVal: String ->
+                                                agency.value = textVal
+                                            },
+                                            label = { Text("소속기관") },
+                                            placeholder = { Text("소속기관") },
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Business,
+                                                    contentDescription = null
+                                                )
+                                            },
+                                            colors = OutlinedTextFieldDefaults.colors(
+                                                cursorColor = accent,
+                                                focusedBorderColor = accent,
+                                                errorCursorColor = red,
+                                                errorLeadingIconColor = red,
+                                                disabledPlaceholderColor = gray,
+                                                focusedTextColor = accent,
+                                                focusedLabelColor = accent,
+                                                focusedLeadingIconColor = accent,
+                                                disabledTextColor = gray,
+                                                unfocusedLabelColor = DeepMindColorPalette.current.txtColor,
+                                                unfocusedLeadingIconColor = DeepMindColorPalette.current.txtColor,
+                                                unfocusedSupportingTextColor = DeepMindColorPalette.current.txtColor,
+                                                selectionColors = TextSelectionColors(
+                                                    handleColor = accent,
+                                                    backgroundColor = accent.copy(alpha = 0.5f)
+                                                )
+                                            ),
+                                            maxLines = 1,
+                                            singleLine = true
+                                        )
+                                    }
+                                }
+
                                 Spacer(modifier = Modifier.height(20.dp))
 
-
-                                AnimatedVisibility(visible = birthDay.value != birthDayDefaultValue) {
+                                AnimatedVisibility(visible = if(type == UserTypeModel.CUSTOMER) birthDay.value != birthDayDefaultValue else agency.value != "") {
                                     title.value = "이용약관을 읽어주세요."
 
                                     Column(horizontalAlignment = Alignment.Start) {
@@ -644,7 +693,7 @@ fun SignUpView() {
                                             } else if(password.value != checkPassword.value){
                                                 alertModel.value = SignUpAlertModel.MISMATCH_PASSWORD
                                                 showAlert.value = true
-                                            } else if(email.value == "" || password.value == "" || name.value == "" || nickName.value == "" || checkPassword.value == "" || birthDay.value == birthDayDefaultValue || phoneNumber.value == ""){
+                                            } else if(email.value == "" || password.value == "" || name.value == "" || nickName.value == "" || checkPassword.value == "" || birthDay.value == birthDayDefaultValue || phoneNumber.value == "" || (type == UserTypeModel.PROFESSIONAL && agency.value == "")){
                                                 alertModel.value = SignUpAlertModel.EMPTY_FIELD
                                                 showAlert.value = true
                                             } else if(!isLicenseAccepted.value || !isPrivacyLicenseAccepted.value || !isSensitiveLicenseAccepted.value){
@@ -653,7 +702,7 @@ fun SignUpView() {
                                             } else{
                                                 showProgress.value = true
 
-                                                helper.signUp(email.value, password.value, name.value, nickName.value, phoneNumber.value, birthDay.value){
+                                                helper.signUp(email.value, password.value, name.value, nickName.value, phoneNumber.value, birthDay.value, type, if(type == UserTypeModel.PROFESSIONAL) agency.value else null){
                                                     if(it){
                                                         navController.navigate("UploadFeatureView") {
                                                             popUpTo("SignUpView") {
@@ -792,5 +841,5 @@ fun SignUpView() {
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun SignUpView_previews(){
-    SignUpView()
+    SignUpView(type = UserTypeModel.CUSTOMER)
 }

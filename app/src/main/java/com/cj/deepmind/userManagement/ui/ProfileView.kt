@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Key
@@ -50,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,6 +72,8 @@ import com.cj.deepmind.ui.theme.accent
 import com.cj.deepmind.ui.theme.gray
 import com.cj.deepmind.ui.theme.red
 import com.cj.deepmind.userManagement.helper.UserManagement
+import com.cj.deepmind.userManagement.models.ProBadgeView
+import com.cj.deepmind.userManagement.models.UserTypeModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,28 +123,49 @@ fun ProfileView(){
                                 Image(
                                     painter = painterResource(id = R.drawable.ic_deepmind),
                                     contentDescription = null,
+                                    contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .width(50.dp)
                                         .height(50.dp)
                                         .clip(CircleShape)
                                 )
 
+
                                 Spacer(modifier = Modifier.height(10.dp))
 
-                                androidx.compose.material3.Text(
-                                    AES256Util.decrypt(UserManagement.userInfo?.nickName),
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = DeepMindColorPalette.current.txtColor
-                                )
+                                if (UserManagement.userInfo?.type == UserTypeModel.PROFESSIONAL){
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        androidx.compose.material3.Text(
+                                            UserManagement.userInfo?.name ?: "",
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = DeepMindColorPalette.current.txtColor
+                                        )
 
-                                Spacer(modifier = Modifier.height(5.dp))
+                                        Spacer(modifier = Modifier.width(5.dp))
+
+                                        ProBadgeView()
+                                    }
+                                } else{
+                                    androidx.compose.material3.Text(
+                                        UserManagement.userInfo?.name ?: "",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = DeepMindColorPalette.current.txtColor
+                                    )
+                                }
 
                                 androidx.compose.material3.Text(
                                     AES256Util.decrypt(UserManagement.userInfo?.email),
                                     fontSize = 12.sp,
                                     color = gray
                                 )
+
+                                Spacer(modifier = Modifier.height(5.dp))
+
+                                TextButton(onClick = { /*TODO*/ }) {
+                                    Text(text = "프로필 이미지 변경", color = accent)
+                                }
 
                                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -159,16 +184,49 @@ fun ProfileView(){
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         androidx.compose.material3.Icon(
+                                            imageVector = Icons.Default.Checklist,
+                                            contentDescription = null,
+                                            tint = DeepMindColorPalette.current.txtColor,
+                                            modifier = Modifier.size(30.dp)
+                                        )
+
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        androidx.compose.material3.Text(
+                                            "민감정보 변경",
+                                            fontSize = 15.sp,
+                                            color = DeepMindColorPalette.current.txtColor
+                                        )
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Button(
+                                    onClick = {  },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = DeepMindColorPalette.current.btnColor
+                                    ), elevation = ButtonDefaults.buttonElevation(5.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(60.dp),
+                                    shape = RoundedCornerShape(15.dp)
+                                ) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.Start,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        androidx.compose.material3.Icon(
                                             imageVector = Icons.Default.DeleteForever,
                                             contentDescription = null,
-                                            tint = red,
+                                            tint = DeepMindColorPalette.current.txtColor,
                                             modifier = Modifier.size(30.dp)
                                         )
 
                                         Spacer(modifier = Modifier.width(10.dp))
                                         androidx.compose.material3.Text(
                                             "민감정보 삭제 요청 및 동의 철회",
-                                            fontSize = 18.sp,
+                                            fontSize = 15.sp,
                                             color = DeepMindColorPalette.current.txtColor
                                         )
                                         Spacer(modifier = Modifier.weight(1f))
@@ -194,14 +252,14 @@ fun ProfileView(){
                                         androidx.compose.material3.Icon(
                                             imageVector = Icons.Default.Person,
                                             contentDescription = null,
-                                            tint = red,
+                                            tint = DeepMindColorPalette.current.txtColor,
                                             modifier = Modifier.size(30.dp)
                                         )
 
                                         Spacer(modifier = Modifier.width(10.dp))
                                         androidx.compose.material3.Text(
                                             "닉네임 변경",
-                                            fontSize = 18.sp,
+                                            fontSize = 15.sp,
                                             color = DeepMindColorPalette.current.txtColor
                                         )
                                         Spacer(modifier = Modifier.weight(1f))
@@ -227,14 +285,14 @@ fun ProfileView(){
                                         androidx.compose.material3.Icon(
                                             imageVector = Icons.Default.Phone,
                                             contentDescription = null,
-                                            tint = red,
+                                            tint = DeepMindColorPalette.current.txtColor,
                                             modifier = Modifier.size(30.dp)
                                         )
 
                                         Spacer(modifier = Modifier.width(10.dp))
                                         androidx.compose.material3.Text(
                                             "연락처 변경",
-                                            fontSize = 18.sp,
+                                            fontSize = 15.sp,
                                             color = DeepMindColorPalette.current.txtColor
                                         )
                                         Spacer(modifier = Modifier.weight(1f))
@@ -260,14 +318,14 @@ fun ProfileView(){
                                         androidx.compose.material3.Icon(
                                             imageVector = Icons.Default.Key,
                                             contentDescription = null,
-                                            tint = red,
+                                            tint = DeepMindColorPalette.current.txtColor,
                                             modifier = Modifier.size(30.dp)
                                         )
 
                                         Spacer(modifier = Modifier.width(10.dp))
                                         androidx.compose.material3.Text(
                                             "비밀번호 변경",
-                                            fontSize = 18.sp,
+                                            fontSize = 15.sp,
                                             color = DeepMindColorPalette.current.txtColor
                                         )
                                         Spacer(modifier = Modifier.weight(1f))

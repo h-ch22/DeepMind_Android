@@ -19,12 +19,16 @@ fun NavigationGraph(navController : NavHostController){
             HomeView()
         }
 
-        composable(BottomNavigationItem.Diary.screenRoute){
-            DiaryView()
+        composable(BottomNavigationItem.Map.screenRoute){
+            HomeView()
         }
 
-        composable(BottomNavigationItem.History.screenRoute){
-            HistoryView()
+        composable(BottomNavigationItem.ManageConsulting.screenRoute){
+            HomeView()
+        }
+
+        composable(BottomNavigationItem.Community.screenRoute){
+            HomeView()
         }
 
         composable(BottomNavigationItem.More.screenRoute){
@@ -33,7 +37,6 @@ fun NavigationGraph(navController : NavHostController){
 
         composable(BottomNavigationItem.inspectionDrawingView.screenRoute){
             InspectionDrawingView()
-//            onInspectionView()
         }
     }
 }

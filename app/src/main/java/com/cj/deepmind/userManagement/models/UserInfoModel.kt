@@ -7,6 +7,8 @@ data class UserInfoModel(
     val nickName : String,
     val phone : String,
     val birthDay : String,
+    val type: UserTypeModel,
+    val agency: String,
     val isChildAbuseAttacker: Boolean,
     val isChildAbuseVictim: Boolean,
     val isDomesticViolenceAttacker : Boolean,
