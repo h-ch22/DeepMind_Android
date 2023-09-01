@@ -1,11 +1,8 @@
 package com.cj.deepmind.inspection.helper
 
-import android.graphics.Rect
 import android.graphics.RectF
 import com.cj.deepmind.inspection.models.Result
 import org.pytorch.Tensor
-import java.util.Arrays
-import java.util.Collections
 
 class PrePostProcessor {
     companion object{

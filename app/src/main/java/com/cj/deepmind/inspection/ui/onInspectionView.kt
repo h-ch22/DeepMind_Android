@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
@@ -52,7 +51,6 @@ import androidx.navigation.compose.rememberNavController
 import com.cj.deepmind.inspection.helper.InspectionHelper
 import com.cj.deepmind.inspection.models.AnalysisResult
 import com.cj.deepmind.inspection.models.InspectionTypeModel
-import com.cj.deepmind.inspection.models.Result
 import com.cj.deepmind.ui.theme.DeepMindColorPalette
 import com.cj.deepmind.ui.theme.DeepMindTheme
 import com.cj.deepmind.ui.theme.accent

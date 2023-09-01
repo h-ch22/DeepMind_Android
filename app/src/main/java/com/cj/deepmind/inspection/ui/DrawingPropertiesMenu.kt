@@ -18,7 +18,6 @@ import com.cj.deepmind.inspection.models.DrawMode
 import com.cj.deepmind.inspection.models.PathProperties
 import com.cj.deepmind.ui.theme.DeepMindColorPalette
 import com.cj.deepmind.ui.theme.accent
-import com.cj.deepmind.ui.theme.btnColor
 import com.cj.deepmind.ui.theme.gray
 
 @Composable
@@ -29,7 +28,6 @@ fun DrawingPropertiesMenu(
     onPathPropertiesChange: (PathProperties) -> Unit,
     onDrawModeChange: (DrawMode) -> Unit
 ){
-    val properties by rememberUpdatedState(newValue = pathProperties)
     var currentDrawMode = drawMode
 
     Row(

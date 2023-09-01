@@ -4,14 +4,9 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Paint
-import android.graphics.RectF
-import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,22 +16,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,14 +33,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import coil.compose.rememberAsyncImagePainter
 import com.cj.deepmind.R
 import com.cj.deepmind.inspection.models.AnalysisResult
-import com.cj.deepmind.inspection.models.Result
+import com.cj.deepmind.inspection.models.InspectionEssentialQuestionViewModel
+import com.cj.deepmind.inspection.models.InspectionTypeModel
 import com.cj.deepmind.ui.theme.DeepMindColorPalette
 import com.cj.deepmind.ui.theme.DeepMindTheme
 import com.cj.deepmind.ui.theme.gray
@@ -64,6 +52,16 @@ fun indexToString(index: Int): String{
         2 -> return "첫번째 사람"
         3 -> return "두번째 사람"
         else -> return ""
+    }
+}
+
+fun indexToType(index: Int): InspectionTypeModel{
+    when(index){
+        0 -> return InspectionTypeModel.HOUSE
+        1 -> return InspectionTypeModel.TREE
+        2 -> return InspectionTypeModel.PERSON_1
+        3 -> return InspectionTypeModel.PERSON_2
+        else -> return InspectionTypeModel.HOUSE
     }
 }
 
@@ -127,9 +125,13 @@ fun DetectionResultView(result_CL01: AnalysisResult?,
         mutableStateOf(0)
     }
     val context = LocalContext.current
+    val viewModel = InspectionEssentialQuestionViewModel()
 
     DeepMindTheme {
         NavHost(navController = navController, startDestination = "DetectionResultView") {
+            composable("InspectionEssentialQuestionView"){
+                InspectionEssentialQuestionView(type = indexToType(currentIndex.value), viewModel = viewModel, navController = navController)
+            }
             composable("DetectionResultView") {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -208,7 +210,13 @@ fun DetectionResultView(result_CL01: AnalysisResult?,
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        Button(onClick = { /*TODO*/ }) {
+                        Button(onClick = {
+                            navController.navigate("InspectionEssentialQuestionView") {
+                                popUpTo("DetectionResultView") {
+                                    inclusive = false
+                                }
+                            }
+                        }) {
                             Text(text = "필수 문답 작성하기")
                         }
 
@@ -228,8 +236,6 @@ fun DetectionResultView(result_CL01: AnalysisResult?,
                             TextButton(onClick = {
                                 if(currentIndex.value < 3){
                                     currentIndex.value += 1
-                                } else{
-
                                 }
                             }) {
                                 Text(text = if(currentIndex.value < 3) "다음" else "완료")

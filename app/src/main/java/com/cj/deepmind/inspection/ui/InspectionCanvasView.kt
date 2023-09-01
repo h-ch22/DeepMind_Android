@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,8 +30,6 @@ import com.cj.deepmind.inspection.models.MotionEvent
 import com.cj.deepmind.inspection.models.PathProperties
 import com.cj.deepmind.inspection.models.dragMotionEvent
 import com.cj.deepmind.ui.theme.white
-import com.google.firebase.annotations.PreviewApi
-import dev.shreyaspatil.capturable.controller.rememberCaptureController
 
 @Composable
 fun InspectionCanvasView(viewModel: InspectionDrawingViewModel){

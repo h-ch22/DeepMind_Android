@@ -1,6 +1,5 @@
 package com.cj.deepmind.inspection.ui
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -10,7 +9,6 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import androidx.lifecycle.MutableLiveData
 import com.cj.deepmind.inspection.models.AnalysisResult
 
 class DetectionResult: View {

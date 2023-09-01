@@ -4,26 +4,15 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.Matrix
-import android.graphics.Rect
-import android.graphics.YuvImage
-import android.media.Image
 import android.util.Log
 import com.cj.deepmind.inspection.models.AnalysisResult
 import com.cj.deepmind.inspection.models.InspectionTypeModel
-import com.cj.deepmind.inspection.models.Result
-import com.cj.deepmind.inspection.ui.getACode
 import org.pytorch.IValue
 import org.pytorch.Module
-import org.pytorch.Tensor
 import org.pytorch.torchvision.TensorImageUtils
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.nio.ByteBuffer
 
 
 class InspectionHelper {
@@ -81,9 +70,9 @@ class InspectionHelper {
 
             when(type){
                 InspectionTypeModel.HOUSE -> {
-                    val path = File(directory, "HOUSE.png")
-                    if(path.exists()){
-                        bitmap = BitmapFactory.decodeFile(path.path)
+                    val imagePath = File(directory, "HOUSE.png")
+                    if(imagePath.exists()){
+                        bitmap = BitmapFactory.decodeFile(imagePath.path)
                         PrePostProcessor.nClasses = 15
                     } else{
                         Log.d("InspectionHelper", "File not found : HOUSE.png")
@@ -92,9 +81,9 @@ class InspectionHelper {
                 }
 
                 InspectionTypeModel.TREE -> {
-                    val path = File(directory, "TREE.png")
-                    if(path.exists()){
-                        bitmap = BitmapFactory.decodeFile(path.path)
+                    val imagePath = File(directory, "TREE.png")
+                    if(imagePath.exists()){
+                        bitmap = BitmapFactory.decodeFile(imagePath.path)
                         PrePostProcessor.nClasses = 14
                     } else{
                         Log.d("InspectionHelper", "File not found : TREE.png")
@@ -104,9 +93,9 @@ class InspectionHelper {
                 }
 
                 InspectionTypeModel.PERSON_1 -> {
-                    val path = File(directory, "PERSON_1.png")
-                    if(path.exists()){
-                        bitmap = BitmapFactory.decodeFile(path.path)
+                    val imagePath = File(directory, "PERSON_1.png")
+                    if(imagePath.exists()){
+                        bitmap = BitmapFactory.decodeFile(imagePath.path)
                         PrePostProcessor.nClasses = 20
                     } else{
                         Log.d("InspectionHelper", "File not found : PERSON_1.png")
@@ -115,9 +104,9 @@ class InspectionHelper {
                 }
 
                 InspectionTypeModel.PERSON_2 -> {
-                    val path = File(directory, "PERSON_2.png")
-                    if(path.exists()){
-                        bitmap = BitmapFactory.decodeFile(path.path)
+                    val imagePath = File(directory, "PERSON_2.png")
+                    if(imagePath.exists()){
+                        bitmap = BitmapFactory.decodeFile(imagePath.path)
                         PrePostProcessor.nClasses = 20
                     } else{
                         Log.d("InspectionHelper", "File not found : PERSON_2.png")
@@ -130,7 +119,7 @@ class InspectionHelper {
 
             try{
                 val inputTensor = TensorImageUtils.bitmapToFloat32Tensor(bitmap, PrePostProcessor.NO_MEAN_RGB, PrePostProcessor.NO_STD_RGB)
-                val (x, boxes, scores) = mModule.forward(IValue.from(inputTensor)).toTuple()
+                val (x, _, _) = mModule.forward(IValue.from(inputTensor)).toTuple()
 
                 val results = PrePostProcessor.nms(x.toTensor(), 0.45f)
 
