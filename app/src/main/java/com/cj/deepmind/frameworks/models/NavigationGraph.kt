@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.cj.deepmind.community.ui.CommunityListView
 import com.cj.deepmind.diary.ui.DiaryView
 import com.cj.deepmind.history.ui.HistoryView
 import com.cj.deepmind.home.ui.HomeView
@@ -28,7 +29,7 @@ fun NavigationGraph(navController : NavHostController){
         }
 
         composable(BottomNavigationItem.Community.screenRoute){
-            HomeView()
+            CommunityListView()
         }
 
         composable(BottomNavigationItem.More.screenRoute){
