@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,30 +28,41 @@ import com.cj.deepmind.ui.theme.DeepMindTheme
 import com.cj.deepmind.ui.theme.accent
 import com.cj.deepmind.ui.theme.gray
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunityArticleListModel(
-    data: CommunityArticleDataModel
+    data: CommunityArticleDataModel,
+    modifier: Modifier = Modifier,
+    onClickStartSource: () -> Unit
 ){
     DeepMindTheme {
-        Surface(modifier = Modifier.fillMaxWidth().background(DeepMindColorPalette.current.btnColor, shape = RoundedCornerShape(15.dp)).shadow(5.dp),
-            color = DeepMindColorPalette.current.btnColor) {
-            Row(modifier = Modifier.padding(20.dp), horizontalArrangement = Arrangement.Center) {
-                Column {
-                    Text(text = data.title,
-                        color = DeepMindColorPalette.current.txtColor,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp)
+        Card(shape = RoundedCornerShape(15.dp),
+            colors = CardDefaults.cardColors(containerColor = DeepMindColorPalette.current.btnColor),
+            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+            onClick = {
+                onClickStartSource()
+            }) {
+            Surface(modifier = Modifier.fillMaxWidth(),
+                color = DeepMindColorPalette.current.btnColor) {
+                Row(modifier = Modifier.padding(20.dp), horizontalArrangement = Arrangement.Center) {
+                    Column {
+                        Text(text = data.title,
+                            color = DeepMindColorPalette.current.txtColor,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 18.sp)
 
-                    Text(text = data.nickName, fontSize = 12.sp, color = gray)
+                        Text(text = data.nickName, fontSize = 12.sp, color = gray)
 
-                    Text(text = "${data.board}|${data.createDate}", fontSize = 12.sp, color = gray)
+                        Text(text = "${data.board} | ${data.createDate}", fontSize = 12.sp, color = gray)
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Text(text = data.commentCount.toString(), color = accent)
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Text(text = data.commentCount.toString(), color = accent)
             }
         }
+
     }
 }
 
@@ -56,6 +70,7 @@ fun CommunityArticleListModel(
 @Composable
 fun CommunityArticleListModel_previews(){
     CommunityArticleListModel(
-        data = CommunityArticleDataModel()
+        data = CommunityArticleDataModel(),
+        onClickStartSource = {}
     )
 }

@@ -70,7 +70,9 @@ fun CommunityListView() {
                         itemsIndexed(
                             articleList.toList()
                         ) { _, item ->
-                            CommunityArticleListModel(data = item)
+                            CommunityArticleListModel(data = item){
+
+                            }
                         }
                     }
 
